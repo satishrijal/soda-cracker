@@ -188,3 +188,28 @@ header { display: flex; align-items: center; justify-content: space-between; mar
 }
 
 #confetti { position: fixed; inset: 0; pointer-events: none; z-index: 60; }
+
+/* ---------- hints / used cans / locked slots ---------- */
+.header-right { display: flex; align-items: center; gap: 8px; }
+.hint-btn {
+  background: var(--panel2); border: 1px solid var(--gold); color: var(--gold);
+  font-weight: 800; font-size: 15px; border-radius: 12px; padding: 7px 12px;
+  cursor: pointer; font-family: inherit;
+}
+.hint-btn:active { transform: scale(.94); }
+.hint-btn.empty { opacity: .35; border-color: #4a4468; color: var(--muted); }
+
+#palette .can.used { opacity: .22; filter: grayscale(.8); cursor: default; }
+#palette .can.used .pname { display: none; }
+#palette.hint { animation: slot-pulse .5s ease 2; }
+
+.slot.locked {
+  border: 2px solid var(--gold);
+  box-shadow: 0 0 14px rgba(255,190,11,.55);
+  cursor: default;
+}
+
+.end-answer {
+  display: flex; gap: 6px; justify-content: center; margin: 4px 0 8px;
+  background: rgba(255,255,255,.04); border-radius: 14px; padding: 10px;
+}

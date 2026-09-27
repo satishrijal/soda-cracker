@@ -21,8 +21,10 @@
   <div class="card">
     <h2>How to play</h2>
     <div class="how-row"><span>1️⃣</span> The machine hides a secret lineup of soda cans.</div>
-    <div class="how-row"><span>2️⃣</span> Tap a can below, then tap a slot to place it.</div>
-    <div class="how-row"><span>3️⃣</span> Hit <b>CHECK</b>. You'll get pegs:</div>
+    <div class="how-row"><span>2️⃣</span> Tap a can, then tap a slot to place it. Placed cans leave the shelf — each can is used once.</div>
+    <div class="how-row"><span>2️⃣½</span> Tap a placed can to take it back.</div>
+    <div class="how-row"><span>3️⃣</span> Stuck? Tap <b>💡</b> for a hint — it locks one correct can in place.</div>
+    <div class="how-row"><span>4️⃣</span> Hit <b>CHECK</b>. You'll get pegs:</div>
     <div class="how-row peg-demo"><span class="peg black"></span> right can, right spot</div>
     <div class="how-row peg-demo"><span class="peg white"></span> right can, wrong spot</div>
     <div class="how-row"><span>4️⃣</span> Use the clues to crack the exact lineup before you run out of tries!</div>
@@ -35,7 +37,10 @@
   <header>
     <button id="back-btn" class="ghost-btn">← Levels</button>
     <div id="level-badge">LEVEL 1</div>
-    <div id="tries-badge">8 left</div>
+    <div class="header-right">
+      <button id="hint-btn" class="hint-btn">💡 3</button>
+      <div id="tries-badge">8 left</div>
+    </div>
   </header>
 
   <div class="secret-label">SECRET LINEUP</div>
@@ -56,6 +61,7 @@
   <div class="card">
     <div id="end-emoji" class="end-emoji">🏆</div>
     <h2 id="end-title">CRACKED!</h2>
+    <div id="end-answer" class="end-answer"></div>
     <p id="end-sub" class="tagline"></p>
     <div id="end-stars" class="end-stars"></div>
     <div class="row-btns">

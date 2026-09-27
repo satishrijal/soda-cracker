@@ -12,25 +12,30 @@ const CANS = [
   { id: 'mint',   name: 'Mint',   short: 'M',  color: '#2ec4b6', dark: '#1a7a71' },
 ];
 
-// level: { slots, cans (how many can types in play), tries }
+// level: { slots, cans (can types in play), tries, hints }
 const LEVELS = [
-  { slots: 3, cans: 4, tries: 8  },
-  { slots: 3, cans: 5, tries: 8  },
-  { slots: 4, cans: 5, tries: 9  },
-  { slots: 4, cans: 6, tries: 9  },
-  { slots: 4, cans: 6, tries: 8  },
-  { slots: 5, cans: 6, tries: 10 },
-  { slots: 5, cans: 7, tries: 10 },
-  { slots: 5, cans: 7, tries: 9  },
-  { slots: 5, cans: 8, tries: 10 },
-  { slots: 6, cans: 8, tries: 10 },
+  { slots: 3, cans: 4, tries: 8,  hints: 3 },
+  { slots: 3, cans: 5, tries: 8,  hints: 3 },
+  { slots: 4, cans: 5, tries: 9,  hints: 3 },
+  { slots: 4, cans: 6, tries: 9,  hints: 2 },
+  { slots: 4, cans: 6, tries: 8,  hints: 2 },
+  { slots: 5, cans: 6, tries: 10, hints: 2 },
+  { slots: 5, cans: 7, tries: 10, hints: 2 },
+  { slots: 5, cans: 7, tries: 9,  hints: 1 },
+  { slots: 5, cans: 8, tries: 10, hints: 1 },
+  { slots: 6, cans: 8, tries: 10, hints: 1 },
 ];
 
+// Secret uses each can at most once (matches the shelf: placed cans leave the options).
 function randomSecret(slots, canCount, rand) {
   const r = rand || Math.random;
+  const pool = [];
+  for (let i = 0; i < canCount; i++) pool.push(i);
   const secret = [];
-  for (let i = 0; i < slots; i++) secret.push(Math.floor(r() * canCount));
-  return secret; // indexes into the level's can set (repeats allowed)
+  for (let i = 0; i < slots && pool.length; i++) {
+    secret.push(pool.splice(Math.floor(r() * pool.length), 1)[0]);
+  }
+  return secret; // distinct indexes into the level's can set
 }
 
 // Classic Mastermind scoring. secret/guess are arrays of can indexes.

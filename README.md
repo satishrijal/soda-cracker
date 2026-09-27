@@ -4,8 +4,9 @@ Crack the secret soda lineup — a Mastermind-style deduction game with soda can
 
 ## How to play
 1. The machine hides a secret lineup of soda cans.
-2. Tap a can, then tap a slot to place it. Tap a filled slot (with nothing selected) to clear it.
-3. Hit **CHECK** — pegs tell you:
+2. Tap a can, then tap a slot to place it. **Placed cans leave the shelf** — each can is used once per guess. Tap a placed can to take it back.
+3. Stuck? Tap **💡** for a hint — it locks one correct can in its spot for the rest of the level. Easy levels give 3 hints, hard ones give 1.
+4. Hit **CHECK** — pegs tell you:
    - ⚫ right can, right spot
    - ⚪ right can, wrong spot
 4. Crack the exact lineup before your tries run out.

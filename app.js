@@ -36,12 +36,14 @@ const sfx = {
   place: () => beep(440, 0.09, 'triangle', 0.12),
   clear: () => beep(300, 0.08, 'triangle', 0.08),
   check: () => { beep(220, 0.1, 'sawtooth', 0.08); beep(330, 0.1, 'sawtooth', 0.08, 0.1); },
+  hint:  () => { beep(880, 0.12, 'sine', 0.12); beep(1320, 0.16, 'sine', 0.12, 0.1); },
   win:   () => [523, 659, 784, 1047].forEach((f, i) => beep(f, 0.18, 'triangle', 0.14, i * 0.12)),
   lose:  () => [400, 340, 280, 200].forEach((f, i) => beep(f, 0.2, 'sawtooth', 0.08, i * 0.14)),
 };
 
 /* ---------------- game state ---------------- */
-let levelIdx = 0, secret = [], guess = [], triesLeft = 0, selectedCan = null, gameOver = false;
+let levelIdx = 0, secret = [], guess = [], locked = [], triesLeft = 0, hintsLeft = 0;
+let selectedCan = null, gameOver = false;
 
 function canEl(canIdx, mini) {
   const c = CANS[canIdx];
@@ -84,13 +86,16 @@ function startLevel(i) {
   const lv = LEVELS[i];
   secret = randomSecret(lv.slots, lv.cans);
   guess = new Array(lv.slots).fill(null);
+  locked = new Array(lv.slots).fill(false);
   triesLeft = lv.tries;
+  hintsLeft = lv.hints;
   selectedCan = null;
   gameOver = false;
   $('screen-levels').classList.add('hidden');
   $('screen-game').classList.remove('hidden');
   $('level-badge').textContent = 'LEVEL ' + (i + 1);
   updateTries();
+  updateHintBtn();
   renderSecret(false);
   $('board').innerHTML = '';
   renderGuess();
@@ -101,6 +106,31 @@ function startLevel(i) {
 function updateTries() {
   $('tries-badge').textContent = triesLeft + (triesLeft === 1 ? ' try' : ' tries') + ' left';
 }
+
+function updateHintBtn() {
+  const b = $('hint-btn');
+  b.textContent = '💡 ' + hintsLeft;
+  b.classList.toggle('empty', hintsLeft <= 0);
+}
+
+$('hint-btn').onclick = () => {
+  if (gameOver || hintsLeft <= 0) return;
+  const candidates = [];
+  for (let i = 0; i < secret.length; i++) if (!locked[i]) candidates.push(i);
+  if (!candidates.length) return;
+  const i = candidates[Math.floor(Math.random() * candidates.length)];
+  const can = secret[i];
+  // that can leaves any other slot — it's now locked in the right place
+  for (let j = 0; j < guess.length; j++) if (guess[j] === can) guess[j] = null;
+  guess[i] = can;
+  locked[i] = true;
+  hintsLeft--;
+  sfx.hint();
+  updateHintBtn();
+  renderGuess();
+  renderPalette();
+  updateCheck();
+};
 
 function renderSecret(reveal) {
   const row = $('secret-row');
@@ -123,7 +153,7 @@ function renderGuess() {
   row.innerHTML = '';
   guess.forEach((g, i) => {
     const s = document.createElement('div');
-    s.className = 'slot' + (g !== null ? ' filled' : '');
+    s.className = 'slot' + (g !== null ? ' filled' : '') + (locked[i] ? ' locked' : '');
     if (g !== null) s.appendChild(canEl(g));
     s.onclick = () => onSlotTap(i);
     row.appendChild(s);
@@ -134,6 +164,7 @@ function renderPalette() {
   const pal = $('palette');
   pal.innerHTML = '';
   const lv = LEVELS[levelIdx];
+  const usedCans = new Set(guess.filter(g => g !== null));
   for (let c = 0; c < lv.cans; c++) {
     const el = canEl(c);
     el.dataset.can = c;
@@ -142,26 +173,34 @@ function renderPalette() {
     name.textContent = CANS[c].name;
     el.appendChild(name);
     if (selectedCan === c) el.classList.add('selected');
-    el.onclick = () => {
-      if (gameOver) return;
-      sfx.pick();
-      selectedCan = (selectedCan === c) ? null : c;
-      renderPalette();
-    };
+    if (usedCans.has(c)) {
+      // placed cans leave the shelf
+      el.classList.add('used');
+      el.onclick = () => {
+        el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake');
+      };
+    } else {
+      el.onclick = () => {
+        if (gameOver) return;
+        sfx.pick();
+        selectedCan = (selectedCan === c) ? null : c;
+        renderPalette();
+      };
+    }
     pal.appendChild(el);
   }
 }
 
 function onSlotTap(i) {
-  if (gameOver) return;
+  if (gameOver || locked[i]) return;
   if (guess[i] !== null && selectedCan === null) {
     // tap a filled slot with nothing selected = clear it
     guess[i] = null;
     sfx.clear();
   } else if (selectedCan !== null) {
     guess[i] = selectedCan;
+    selectedCan = null; // that can left the shelf — pick another
     sfx.place();
-    // auto-advance selection stays; player can keep placing same can
   } else {
     // nothing selected: hint the palette
     $('palette').classList.remove('hint');
@@ -170,6 +209,7 @@ function onSlotTap(i) {
     return;
   }
   renderGuess();
+  renderPalette();
   updateCheck();
 }
 
@@ -194,8 +234,12 @@ $('check-btn').onclick = () => {
       const gr = $('guess-row');
       gr.classList.remove('shake'); void gr.offsetWidth; gr.classList.add('shake');
     }
-    guess = new Array(secret.length).fill(null);
+    // new guess — hint-locked cans stay locked in
+    const ng = new Array(secret.length).fill(null);
+    for (let i = 0; i < secret.length; i++) if (locked[i]) ng[i] = secret[i];
+    guess = ng;
     renderGuess();
+    renderPalette();
     updateCheck();
   }
 };
@@ -226,6 +270,10 @@ function endGame(won) {
   renderSecret(true);
   const lv = LEVELS[levelIdx];
   const triesUsed = lv.tries - triesLeft;
+  // show the answer right in the card — win or lose
+  const ans = $('end-answer');
+  ans.innerHTML = '';
+  secret.forEach(c => ans.appendChild(canEl(c, true)));
   if (won) {
     sfx.win();
     const stars = starsFor(triesUsed, lv.tries);
