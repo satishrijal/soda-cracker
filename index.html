@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Soda Cracker — crack the can code</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ============ LEVEL SELECT ============ -->
+<div id="screen-levels" class="screen">
+  <div class="logo">🥫 SODA<br>CRACKER</div>
+  <p class="tagline">Crack the secret soda lineup.<br>Pick your cans. Place them. Deduce.</p>
+  <div id="level-grid"></div>
+  <button id="how-btn" class="ghost-btn">How to play</button>
+</div>
+
+<!-- ============ HOW TO ============ -->
+<div id="how-overlay" class="overlay hidden">
+  <div class="card">
+    <h2>How to play</h2>
+    <div class="how-row"><span>1️⃣</span> The machine hides a secret lineup of soda cans.</div>
+    <div class="how-row"><span>2️⃣</span> Tap a can below, then tap a slot to place it.</div>
+    <div class="how-row"><span>3️⃣</span> Hit <b>CHECK</b>. You'll get pegs:</div>
+    <div class="how-row peg-demo"><span class="peg black"></span> right can, right spot</div>
+    <div class="how-row peg-demo"><span class="peg white"></span> right can, wrong spot</div>
+    <div class="how-row"><span>4️⃣</span> Use the clues to crack the exact lineup before you run out of tries!</div>
+    <button id="how-close" class="big-btn">GOT IT</button>
+  </div>
+</div>
+
+<!-- ============ GAME ============ -->
+<div id="screen-game" class="screen hidden">
+  <header>
+    <button id="back-btn" class="ghost-btn">← Levels</button>
+    <div id="level-badge">LEVEL 1</div>
+    <div id="tries-badge">8 left</div>
+  </header>
+
+  <div class="secret-label">SECRET LINEUP</div>
+  <div id="secret-row"></div>
+
+  <div id="board"></div>
+
+  <div class="guess-label">YOUR GUESS</div>
+  <div id="guess-row"></div>
+
+  <div id="palette"></div>
+
+  <button id="check-btn" class="big-btn" disabled>CHECK</button>
+</div>
+
+<!-- ============ WIN / LOSE ============ -->
+<div id="end-overlay" class="overlay hidden">
+  <div class="card">
+    <div id="end-emoji" class="end-emoji">🏆</div>
+    <h2 id="end-title">CRACKED!</h2>
+    <p id="end-sub" class="tagline"></p>
+    <div id="end-stars" class="end-stars"></div>
+    <div class="row-btns">
+      <button id="retry-btn" class="ghost-btn">↻ Retry</button>
+      <button id="next-btn" class="big-btn">Next →</button>
+    </div>
+    <button id="end-levels-btn" class="ghost-btn">← All levels</button>
+  </div>
+</div>
+
+<canvas id="confetti"></canvas>
+
+<script src="logic.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
